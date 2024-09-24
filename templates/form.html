@@ -5,8 +5,16 @@
     </head>
     <body>
         <form method="POST">
-            <textarea name="user_text" rows="5"></textarea>
+            <textarea name="user_text" rows="5" required></textarea>
             <input type="submit" value="Analyze Text">
         </form>
+        {% if sentiment %}
+        <h3>Sentiment Analysis Results:</h3>
+        <p>Positive: {{ sentiment['pos'] * 100 }}%</p>
+        <p>Negative: {{ sentiment['neg'] * 100 }}%</p>
+        <p>Neutral: {{ sentiment['neu'] * 100 }}%</p>
+        <p>Compound: {{ sentiment['compound'] * 100 }}%</p>
+        <p>Custom Model Positive: {{ sentiment['custom model positive'] }}</p>
+        {% endif %}
     </body>
 </html>
