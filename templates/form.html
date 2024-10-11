@@ -2,19 +2,93 @@
 <html>
     <head>
         <title>Sentiment Analysis</title>
+        <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body>
-        <form method="POST">
-            <textarea name="user_text" rows="5" required></textarea>
-            <input type="submit" value="Analyze Text">
-        </form>
-        {% if sentiment %}
-        <h3>Sentiment Analysis Results:</h3>
-        <p>Positive: {{ sentiment['pos'] * 100 }}%</p>
-        <p>Negative: {{ sentiment['neg'] * 100 }}%</p>
-        <p>Neutral: {{ sentiment['neu'] * 100 }}%</p>
-        <p>Compound: {{ sentiment['compound'] * 100 }}%</p>
-        <p>Custom Model Positive: {{ sentiment['custom model positive'] }}</p>
+      <div class="container">
+          <div class="text-center">
+              <img src="static/sentimentscope.png">
+          </div>
+          <div class="row">
+              <div class="col-lg-8 mx-auto">
+                  <form method="POST">
+                      <div class="form-group">
+                          <textarea class="form-control" name="user_text" rows="5">{% if sentiment %}{{user_text}}{% endif %}</textarea>
+                      </div>
+                      <input type="submit" value="Analyze Text" class="btn btn-primary">
+                  </form>
+              </div>
+          </div>
+          {% if sentiment %}
+          <div class="row">
+            <div class="col-lg-8 mx-auto mt-5">
+              <div class="text-center">
+                 <h1>Results:</h1>
+              </div>
+              <div class="card-body d-flex text-center align-items-center justify-content-center">
+                <div class="chart-title col-lg-8 mx-auto"> Vader Sentiment Analysis</div>
+                <div class="chart-title col-lg-8 mx-auto">Custom Model Sentiment Analysis</div> 
+              </div>
+              <div class="card-body d-flex text-center align-items-center justify-content-center">
+                <div id='barChart'><!-- Bar chart will be drawn inside this DIV --></div>
+                <div id='gauge'><!-- Gauge chart will be drawn inside this DIV --></div>
+              </div>
+            </div>
+        </div>
         {% endif %}
+    </div>
+    {% if sentiment %}
+    <script>
+        var data = [
+        {
+          type: "indicator",
+          mode: "gauge+number",
+          value: {{ sentiment['custom model positive'] }},
+          font: { color: "yellow", family: "lato" },
+          delta: { position : "top", reference: 0, increasing: { color: "#49b170" } },
+          
+          
+          gauge: {
+            paddingTop: 50,
+            axis: { range: [0, 100], tickwidth: 0, tickcolor: "white" },
+            bar: { color: "#000" },
+            bgcolor: "#f4f4f4",
+            borderwidth: 2,
+            bordercolor: "black",
+            steps: [
+              { range: [0, 20], color: "rgba (200, 0, 0, 0.8)" },
+              { range: [21, 40], color: "rgba (247, 156, 71, 0.8)"},
+              { range: [41, 60], color: "rgba (255, 218, 112, 0.8)" },
+              { range: [61, 80], color: "rgba (125, 223, 180, 0.8)" },
+              { range: [81, 100], color: "rgba (30, 130, 76, 0.8)"}
+            ],
+          }
+        }
+      ];
+      
+      var layout = {
+        width: 500,
+        height: 400,
+        margin: { t: 25, r: 25, l: 25, b: 25 },
+        paper_bgcolor: "white",
+        font: { color: "#333333", family: "lato" }
+      };
+    
+      var data2 = [{
+      type: 'bar',
+      x: [{{ sentiment['pos']*100 }}, {{ sentiment['neu']*100 }}, {{ sentiment['neg']*100 }}],
+      y: ['Positive ', 'Neutral ', 'Negative '],
+      orientation: 'h',
+      marker: {
+        color: ['rgba (30, 130, 76, 0.8)', 'rgba (255, 218, 112, 0.8)', 'rgba (200, 0, 0, 0.8)']  // Specify the colors here
+      }
+      }];
+    
+      Plotly.newPlot('barChart', data2, {'width':500});
+      Plotly.newPlot('gauge', data, layout);
+    </script>
+    {% endif %}
     </body>
 </html>
